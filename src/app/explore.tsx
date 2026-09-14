@@ -22,6 +22,7 @@ import { useCountdowns } from '@/hooks/use-countdowns';
 import { useTheme } from '@/hooks/use-theme';
 import { PERSPECTIVE_REFLECTIONS } from '@/services/cadence';
 import { tickAudio } from '@/services/tick-audio';
+import { PersonalityWisdomSection } from '@/features/perspective';
 
 type HorizonTab = 'today' | 'hour' | 'minute' | 'year';
 type MatrixMode = 'year52' | 'day24' | 'life';
@@ -914,6 +915,9 @@ export default function LifePerspectiveScreen() {
               </Text>
             </View>
           </Animated.View>
+
+          {/* SECTION 5: GREAT MINDS QUOTES & QUESTS ARCHIVE */}
+          <PersonalityWisdomSection />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

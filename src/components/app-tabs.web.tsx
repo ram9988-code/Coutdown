@@ -1,3 +1,16 @@
+import React, { useEffect } from 'react';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import {
   Tabs,
   TabList,
@@ -6,10 +19,14 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { Pressable, useColorScheme, View, StyleSheet, Text } from 'react-native';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
-import { Colors, Fonts, MaxContentWidth, Spacing, BorderRadius } from '@/constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import {
+  BorderRadius,
+  Colors,
+  Fonts,
+  MaxContentWidth,
+  Spacing,
+} from '@/constants/theme';
 
 export default function AppTabs() {
   return (
@@ -18,10 +35,27 @@ export default function AppTabs() {
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="home" href="/" asChild>
-            <TabButton>Countdowns</TabButton>
+            <CustomTabButton
+              label="Countdowns"
+              activeIcon="hourglass"
+              inactiveIcon="hourglass-outline"
+            />
           </TabTrigger>
+
           <TabTrigger name="explore" href="/explore" asChild>
-            <TabButton>Perspective</TabButton>
+            <CustomTabButton
+              label="Perspective"
+              activeIcon="planet"
+              inactiveIcon="planet-outline"
+            />
+          </TabTrigger>
+
+          <TabTrigger name="tracker" href="/tracker" asChild>
+            <CustomTabButton
+              label="Tracker"
+              activeIcon="flame"
+              inactiveIcon="flame-outline"
+            />
           </TabTrigger>
         </CustomTabList>
       </TabList>
@@ -29,21 +63,58 @@ export default function AppTabs() {
   );
 }
 
-export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
+interface CustomTabButtonProps extends TabTriggerSlotProps {
+  label: string;
+  activeIcon: keyof typeof Ionicons.glyphMap;
+  inactiveIcon: keyof typeof Ionicons.glyphMap;
+}
+
+function CustomTabButton({
+  label,
+  activeIcon,
+  inactiveIcon,
+  isFocused,
+  ...props
+}: CustomTabButtonProps) {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'unspecified' ? 'dark' : scheme];
 
+  const scale = useSharedValue(isFocused ? 1.02 : 1);
+
+  useEffect(() => {
+    scale.value = withSpring(isFocused ? 1.02 : 1, {
+      damping: 14,
+      stiffness: 160,
+    });
+  }, [isFocused]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
-    <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
-      <View
+    <Pressable
+      {...props}
+      style={({ pressed }) => [
+        styles.tabBtnPressable,
+        pressed && styles.pressed,
+      ]}>
+      <Animated.View
         style={[
           styles.tabButtonView,
           {
             backgroundColor: isFocused ? colors.accent : 'transparent',
-            borderColor: isFocused ? colors.accent : colors.borderSubtle,
+            borderColor: isFocused ? colors.accent : 'transparent',
           },
+          animatedStyle,
         ]}>
+        <Ionicons
+          name={isFocused ? activeIcon : inactiveIcon}
+          size={16}
+          color={isFocused ? colors.accentInverted : colors.textSecondary}
+        />
         <Text
+          numberOfLines={1}
           style={[
             styles.tabButtonText,
             {
@@ -51,14 +122,14 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
               fontWeight: isFocused ? '700' : '500',
             },
           ]}>
-          {children}
+          {label}
         </Text>
-      </View>
+      </Animated.View>
     </Pressable>
   );
 }
 
-export function CustomTabList(props: TabListProps) {
+function CustomTabList(props: TabListProps) {
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'unspecified' ? 'dark' : scheme];
 
@@ -72,17 +143,21 @@ export function CustomTabList(props: TabListProps) {
             borderColor: colors.border,
           },
         ]}>
-        <Text
-          style={[
-            styles.brandText,
-            {
-              color: colors.text,
-              fontFamily: Fonts?.mono ?? 'monospace',
-            },
-          ]}>
-          CHRONOS
-        </Text>
+        {/* Brand Monogram */}
+        <View style={styles.brandWrapper}>
+          <Text
+            style={[
+              styles.brandText,
+              {
+                color: colors.text,
+                fontFamily: Fonts?.mono ?? 'monospace',
+              },
+            ]}>
+            CHRONOS
+          </Text>
+        </View>
 
+        {/* Tab Buttons */}
         <View style={styles.buttonsWrap}>{props.children}</View>
       </View>
     </View>
@@ -92,50 +167,61 @@ export function CustomTabList(props: TabListProps) {
 const styles = StyleSheet.create({
   tabListContainer: {
     position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    padding: Spacing.three,
-    justifyContent: 'center',
+    bottom: Spacing.four,
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.three,
+    zIndex: 100,
   },
   innerContainer: {
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.four,
+    paddingVertical: 6,
+    paddingHorizontal: Spacing.three,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    flexGrow: 1,
-    gap: Spacing.three,
-    maxWidth: MaxContentWidth - 40,
+    width: '100%',
+    maxWidth: MaxContentWidth - 32,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.16,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  brandWrapper: {
+    paddingLeft: Spacing.two,
+    paddingRight: Spacing.two,
   },
   brandText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '800',
-    letterSpacing: 1.5,
+    letterSpacing: 2,
   },
   buttonsWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.one,
+    gap: 4,
+  },
+  tabBtnPressable: {
+    borderRadius: BorderRadius.full,
   },
   pressed: {
     opacity: 0.8,
   },
   tabButtonView: {
-    paddingVertical: Spacing.one,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 7,
     paddingHorizontal: Spacing.three,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
   },
   tabButtonText: {
     fontSize: 12,
+    letterSpacing: -0.1,
   },
 });

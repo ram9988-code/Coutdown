@@ -24,7 +24,7 @@ export function CountdownCard({
   onTogglePin,
 }: CountdownCardProps) {
   const theme = useTheme();
-  const remaining = calculateTimeRemaining(item.targetDate);
+  const remaining = calculateTimeRemaining(item.targetDate, nowTick);
 
   const formattedDate = new Date(item.targetDate).toLocaleDateString(undefined, {
     month: 'short',

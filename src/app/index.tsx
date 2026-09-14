@@ -1,41 +1,32 @@
-import React, { useState } from 'react';
-import {
-  FlatList,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeIn } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
-import { AddCountdownModal } from '@/components/add-countdown-modal';
-import { AgeCountdownCard } from '@/components/age-countdown-card';
-import { CountdownCard } from '@/components/countdown-card';
-import { EditProfileModal } from '@/components/edit-profile-modal';
-import { SuccessCountdownCard } from '@/components/success-countdown-card';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { AddCountdownModal } from "@/components/add-countdown-modal";
+import { AgeCountdownCard } from "@/components/age-countdown-card";
+import { CountdownCard } from "@/components/countdown-card";
+import { EditProfileModal } from "@/components/edit-profile-modal";
+import { SuccessCountdownCard } from "@/components/success-countdown-card";
+import { ThemedView } from "@/components/themed-view";
 import {
   BorderRadius,
   BottomTabInset,
   Fonts,
   MaxContentWidth,
   Spacing,
-} from '@/constants/theme';
-import { useCountdowns } from '@/hooks/use-countdowns';
-import { useTheme } from '@/hooks/use-theme';
-import { CountdownCategory } from '@/types/countdown';
+} from "@/constants/theme";
+import { useCountdowns } from "@/hooks/use-countdowns";
+import { useTheme } from "@/hooks/use-theme";
+import { CountdownCategory } from "@/types/countdown";
+import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const FILTER_CATEGORIES: CountdownCategory[] = [
-  'All',
-  'Milestone',
-  'Project',
-  'Event',
-  'Habit',
-  'Personal',
+  "All",
+  "Milestone",
+  "Project",
+  "Event",
+  "Habit",
+  "Personal",
 ];
 
 export default function HomeScreen() {
@@ -56,25 +47,25 @@ export default function HomeScreen() {
     togglePinCountdown,
   } = useCountdowns();
 
-  const [activeFilter, setActiveFilter] = useState<CountdownCategory>('All');
+  const [activeFilter, setActiveFilter] = useState<CountdownCategory>("All");
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [editTab, setEditTab] = useState<'age' | 'success'>('age');
+  const [editTab, setEditTab] = useState<"age" | "success">("age");
 
   // Filter countdowns
   const filteredCountdowns = countdowns.filter((item) => {
-    if (activeFilter === 'All') return true;
+    if (activeFilter === "All") return true;
     return item.category === activeFilter;
   });
 
-  const handleOpenEdit = (tab: 'age' | 'success') => {
+  const handleOpenEdit = (tab: "age" | "success") => {
     setEditTab(tab);
     setEditModalVisible(true);
   };
 
   return (
     <ThemedView style={styles.rootContainer}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
         {/* Top App Bar */}
         <View style={styles.topAppBar}>
           <View style={styles.brandingRow}>
@@ -84,7 +75,8 @@ export default function HomeScreen() {
                 {
                   backgroundColor: theme.accent,
                 },
-              ]}>
+              ]}
+            >
               <Ionicons
                 name="hourglass"
                 size={16}
@@ -97,13 +89,16 @@ export default function HomeScreen() {
                   styles.brandTitle,
                   {
                     color: theme.text,
-                    fontFamily: Fonts?.mono ?? 'monospace',
+                    fontFamily: Fonts?.mono ?? "monospace",
                   },
-                ]}>
+                ]}
+              >
                 CHRONOS
               </Text>
               <View style={styles.liveIndicatorRow}>
-                <View style={[styles.liveDot, { backgroundColor: theme.text }]} />
+                <View
+                  style={[styles.liveDot, { backgroundColor: theme.text }]}
+                />
                 <Text style={[styles.liveText, { color: theme.textSecondary }]}>
                   RUNS CONTINUOUSLY
                 </Text>
@@ -114,7 +109,7 @@ export default function HomeScreen() {
           {/* Action Buttons */}
           <View style={styles.topActionsRow}>
             <Pressable
-              onPress={() => handleOpenEdit('age')}
+              onPress={() => handleOpenEdit("age")}
               hitSlop={8}
               style={({ pressed }) => [
                 styles.topIconButton,
@@ -123,7 +118,8 @@ export default function HomeScreen() {
                   borderColor: theme.borderSubtle,
                   opacity: pressed ? 0.7 : 1,
                 },
-              ]}>
+              ]}
+            >
               <Ionicons name="settings-outline" size={17} color={theme.text} />
             </Pressable>
 
@@ -135,13 +131,12 @@ export default function HomeScreen() {
                   backgroundColor: theme.accent,
                   opacity: pressed ? 0.8 : 1,
                 },
-              ]}>
+              ]}
+            >
               <Ionicons name="add" size={18} color={theme.accentInverted} />
               <Text
-                style={[
-                  styles.addButtonText,
-                  { color: theme.accentInverted },
-                ]}>
+                style={[styles.addButtonText, { color: theme.accentInverted }]}
+              >
                 New
               </Text>
             </Pressable>
@@ -155,14 +150,17 @@ export default function HomeScreen() {
             styles.scrollContent,
             { paddingBottom: BottomTabInset + Spacing.six },
           ]}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+        >
           {/* Hero Section 1: Remaining Age Countdown */}
           <View style={styles.sectionWrap}>
             <View style={styles.sectionHeaderRow}>
-              <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+              <Text
+                style={[styles.sectionTitle, { color: theme.textSecondary }]}
+              >
                 PRIMARY LIFE CLOCK
               </Text>
-              <Pressable onPress={() => handleOpenEdit('age')} hitSlop={6}>
+              <Pressable onPress={() => handleOpenEdit("age")} hitSlop={6}>
                 <Text style={[styles.sectionActionText, { color: theme.text }]}>
                   Edit DOB
                 </Text>
@@ -172,17 +170,19 @@ export default function HomeScreen() {
             <AgeCountdownCard
               ageProfile={ageProfile}
               ageRemaining={ageRemaining}
-              onEditPress={() => handleOpenEdit('age')}
+              onEditPress={() => handleOpenEdit("age")}
             />
           </View>
 
           {/* Hero Section 2: Success Countdown */}
           <View style={styles.sectionWrap}>
             <View style={styles.sectionHeaderRow}>
-              <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+              <Text
+                style={[styles.sectionTitle, { color: theme.textSecondary }]}
+              >
                 SUCCESS MILESTONE
               </Text>
-              <Pressable onPress={() => handleOpenEdit('success')} hitSlop={6}>
+              <Pressable onPress={() => handleOpenEdit("success")} hitSlop={6}>
                 <Text style={[styles.sectionActionText, { color: theme.text }]}>
                   Edit Goal
                 </Text>
@@ -193,7 +193,7 @@ export default function HomeScreen() {
               successGoal={successGoal}
               remaining={successRemaining}
               progressPercent={successProgress}
-              onEditPress={() => handleOpenEdit('success')}
+              onEditPress={() => handleOpenEdit("success")}
             />
           </View>
 
@@ -201,15 +201,20 @@ export default function HomeScreen() {
           <View style={styles.sectionWrap}>
             <View style={styles.sectionHeaderRow}>
               <View style={styles.countBadgeRow}>
-                <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+                <Text
+                  style={[styles.sectionTitle, { color: theme.textSecondary }]}
+                >
                   CUSTOM COUNTDOWNS
                 </Text>
                 <View
                   style={[
                     styles.countPill,
                     { backgroundColor: theme.badgeBackground },
-                  ]}>
-                  <Text style={[styles.countPillText, { color: theme.badgeText }]}>
+                  ]}
+                >
+                  <Text
+                    style={[styles.countPillText, { color: theme.badgeText }]}
+                  >
                     {countdowns.length}
                   </Text>
                 </View>
@@ -226,7 +231,8 @@ export default function HomeScreen() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filtersScrollContent}>
+              contentContainerStyle={styles.filtersScrollContent}
+            >
               {FILTER_CATEGORIES.map((cat) => {
                 const isSelected = activeFilter === cat;
                 return (
@@ -243,7 +249,8 @@ export default function HomeScreen() {
                           ? theme.accent
                           : theme.borderSubtle,
                       },
-                    ]}>
+                    ]}
+                  >
                     <Text
                       style={[
                         styles.filterChipText,
@@ -251,9 +258,10 @@ export default function HomeScreen() {
                           color: isSelected
                             ? theme.accentInverted
                             : theme.textSecondary,
-                          fontWeight: isSelected ? '700' : '500',
+                          fontWeight: isSelected ? "700" : "500",
                         },
-                      ]}>
+                      ]}
+                    >
                       {cat}
                     </Text>
                   </Pressable>
@@ -271,7 +279,8 @@ export default function HomeScreen() {
                     backgroundColor: theme.card,
                     borderColor: theme.border,
                   },
-                ]}>
+                ]}
+              >
                 <Ionicons
                   name="calendar-clear-outline"
                   size={36}
@@ -280,9 +289,11 @@ export default function HomeScreen() {
                 <Text style={[styles.emptyTitle, { color: theme.text }]}>
                   No Countdowns Found
                 </Text>
-                <Text style={[styles.emptySubtitle, { color: theme.textSecondary }]}>
-                  {activeFilter === 'All'
-                    ? 'Create your first custom countdown to track important moments.'
+                <Text
+                  style={[styles.emptySubtitle, { color: theme.textSecondary }]}
+                >
+                  {activeFilter === "All"
+                    ? "Create your first custom countdown to track important moments."
                     : `No items categorized under "${activeFilter}".`}
                 </Text>
                 <Pressable
@@ -290,12 +301,14 @@ export default function HomeScreen() {
                   style={[
                     styles.emptyButton,
                     { backgroundColor: theme.accent },
-                  ]}>
+                  ]}
+                >
                   <Text
                     style={[
                       styles.emptyButtonText,
                       { color: theme.accentInverted },
-                    ]}>
+                    ]}
+                  >
                     Create Countdown
                   </Text>
                 </Pressable>
@@ -342,42 +355,42 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   safeArea: {
     flex: 1,
-    width: '100%',
+    width: "100%",
     maxWidth: MaxContentWidth,
   },
   topAppBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.three,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(128, 128, 128, 0.12)',
+    borderBottomColor: "rgba(128, 128, 128, 0.12)",
   },
   brandingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.two,
   },
   brandLogoCircle: {
     width: 34,
     height: 34,
     borderRadius: BorderRadius.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   brandTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 2,
   },
   liveIndicatorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   liveDot: {
@@ -387,12 +400,12 @@ const styles = StyleSheet.create({
   },
   liveText: {
     fontSize: 9,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0.6,
   },
   topActionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.two,
   },
   topIconButton: {
@@ -400,12 +413,12 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.half,
     height: 36,
     paddingHorizontal: Spacing.three,
@@ -413,7 +426,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   scrollView: {
     flex: 1,
@@ -427,23 +440,23 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   sectionHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 2,
   },
   sectionTitle: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 1.2,
   },
   sectionActionText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   countBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.two,
   },
   countPill: {
@@ -453,7 +466,7 @@ const styles = StyleSheet.create({
   },
   countPillText: {
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   filtersScrollContent: {
     gap: Spacing.two,
@@ -475,17 +488,17 @@ const styles = StyleSheet.create({
     padding: Spacing.six,
     borderRadius: BorderRadius.xl,
     borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     gap: Spacing.two,
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   emptySubtitle: {
     fontSize: 13,
-    textAlign: 'center',
+    textAlign: "center",
     maxWidth: 280,
     lineHeight: 18,
   },
@@ -497,6 +510,6 @@ const styles = StyleSheet.create({
   },
   emptyButtonText: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });
