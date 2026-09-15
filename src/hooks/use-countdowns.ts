@@ -137,11 +137,12 @@ export function useCountdowns() {
   // Live calculated age remaining metrics
   const ageRemaining = calculateAgeRemaining(
     ageProfile.birthDate,
-    ageProfile.expectedLifespanYears
+    ageProfile.expectedLifespanYears,
+    nowTick
   );
 
   // Live calculated success goal metrics
-  const successRemaining = calculateTimeRemaining(successGoal.targetDate);
+  const successRemaining = calculateTimeRemaining(successGoal.targetDate, nowTick);
   const successStartMs = new Date(successGoal.startDate).getTime();
   const successTargetMs = new Date(successGoal.targetDate).getTime();
   const totalSuccessDuration = Math.max(1, successTargetMs - successStartMs);

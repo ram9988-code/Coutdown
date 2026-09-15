@@ -1,9 +1,10 @@
 import React from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { BorderRadius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useCustomAlert } from '@/features/alerts';
 import { calculateTimeRemaining } from '@/services/storage';
 import { CountdownItem } from '@/types/countdown';
 import { AnimatedDigit } from './animated-digit';
@@ -24,7 +25,8 @@ export function CountdownCard({
   onTogglePin,
 }: CountdownCardProps) {
   const theme = useTheme();
-  const remaining = calculateTimeRemaining(item.targetDate);
+  const { showDeleteAlert } = useCustomAlert();
+  const remaining = calculateTimeRemaining(item.targetDate, nowTick);
 
   const formattedDate = new Date(item.targetDate).toLocaleDateString(undefined, {
     month: 'short',
@@ -35,18 +37,14 @@ export function CountdownCard({
   });
 
   const handleDeletePress = () => {
-    Alert.alert(
-      'Delete Countdown',
-      `Are you sure you want to delete "${item.title}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => onDelete(item.id),
-        },
-      ]
-    );
+    showDeleteAlert({
+      title: 'Delete Countdown',
+      itemName: item.title,
+      message: 'Are you sure you want to delete this countdown? It will be permanently removed from your active clocks.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onDelete: () => onDelete(item.id),
+    });
   };
 
   return (

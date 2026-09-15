@@ -122,10 +122,12 @@ export async function saveCustomCountdowns(items: CountdownItem[]): Promise<void
  * Works seamlessly across app suspensions and restarts because it computes
  * from wall-clock timestamps.
  */
-export function calculateTimeRemaining(targetIso: string): TimeRemaining {
+export function calculateTimeRemaining(
+  targetIso: string,
+  nowMs: number = Date.now()
+): TimeRemaining {
   const targetTime = new Date(targetIso).getTime();
-  const now = Date.now();
-  const diffMs = targetTime - now;
+  const diffMs = targetTime - nowMs;
 
   if (diffMs <= 0) {
     return {
@@ -159,7 +161,8 @@ export function calculateTimeRemaining(targetIso: string): TimeRemaining {
  */
 export function calculateAgeRemaining(
   birthDateIso: string,
-  expectedLifespanYears: number
+  expectedLifespanYears: number,
+  nowMs: number = Date.now()
 ): {
   remaining: TimeRemaining & { years: number };
   yearsLived: number;
@@ -175,17 +178,16 @@ export function calculateAgeRemaining(
   end.setFullYear(birth.getFullYear() + expectedLifespanYears);
   const endTime = end.getTime();
 
-  const now = Date.now();
-  const totalLifeSpanMs = endTime - birthTime;
-  const elapsedMs = Math.max(0, now - birthTime);
-  const remainingMs = Math.max(0, endTime - now);
+  const totalLifeSpanMs = Math.max(1, endTime - birthTime);
+  const elapsedMs = Math.max(0, nowMs - birthTime);
+  const remainingMs = Math.max(0, endTime - nowMs);
 
   const percentageLived = Math.min(
     100,
     Math.max(0, Number(((elapsedMs / totalLifeSpanMs) * 100).toFixed(4)))
   );
 
-  const yearsLived = Number(((now - birthTime) / (365.25 * 86400000)).toFixed(2));
+  const yearsLived = Number(((nowMs - birthTime) / (365.25 * 86400000)).toFixed(2));
 
   const totalRemainingSeconds = Math.floor(remainingMs / 1000);
   const years = Math.floor(totalRemainingSeconds / (365.25 * 86400));

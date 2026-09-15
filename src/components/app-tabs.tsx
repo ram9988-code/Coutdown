@@ -1,32 +1,220 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { useColorScheme } from 'react-native';
-
-import { Colors } from '@/constants/theme';
+import {
+  BorderRadius,
+  Colors,
+  MaxContentWidth,
+  Spacing,
+} from "@/constants/theme";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  TabList,
+  TabListProps,
+  TabSlot,
+  TabTrigger,
+  TabTriggerSlotProps,
+  Tabs,
+} from "expo-router/ui";
+import { useEffect } from "react";
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'dark' : scheme];
-
   return (
-    <NativeTabs
-      backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
-      labelStyle={{ selected: { color: colors.text } }}>
-      <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Countdowns</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
+    <Tabs>
+      <TabSlot style={{ flex: 1 }} />
+      <TabList asChild>
+        <CustomTabList>
+          <TabTrigger name="home" href="/" asChild>
+            <CustomTabButton
+              label="Countdowns"
+              activeIcon="hourglass"
+              inactiveIcon="hourglass-outline"
+            />
+          </TabTrigger>
 
-      <NativeTabs.Trigger name="explore">
-        <NativeTabs.Trigger.Label>Perspective</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
-    </NativeTabs>
+          <TabTrigger name="explore" href="/explore" asChild>
+            <CustomTabButton
+              label="Perspective"
+              activeIcon="planet"
+              inactiveIcon="planet-outline"
+            />
+          </TabTrigger>
+
+          <TabTrigger name="tracker" href="/tracker" asChild>
+            <CustomTabButton
+              label="Tracker"
+              activeIcon="flame"
+              inactiveIcon="flame-outline"
+            />
+          </TabTrigger>
+        </CustomTabList>
+      </TabList>
+    </Tabs>
   );
 }
+
+interface CustomTabButtonProps extends TabTriggerSlotProps {
+  label: string;
+  activeIcon: keyof typeof Ionicons.glyphMap;
+  inactiveIcon: keyof typeof Ionicons.glyphMap;
+}
+
+function CustomTabButton({
+  label,
+  activeIcon,
+  inactiveIcon,
+  isFocused,
+  ...props
+}: CustomTabButtonProps) {
+  const scheme = useColorScheme();
+  const colors = Colors[scheme === "unspecified" ? "dark" : scheme];
+
+  const scale = useSharedValue(isFocused ? 1.02 : 1);
+
+  useEffect(() => {
+    scale.value = withSpring(isFocused ? 1.02 : 1, {
+      damping: 14,
+      stiffness: 160,
+    });
+  }, [isFocused]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <Pressable
+      {...props}
+      style={({ pressed }) => [
+        styles.tabBtnPressable,
+        pressed && styles.pressed,
+      ]}
+    >
+      <Animated.View
+        style={[
+          styles.tabButtonView,
+          {
+            backgroundColor: isFocused ? colors.accent : "transparent",
+            borderColor: isFocused ? colors.accent : "transparent",
+          },
+          animatedStyle,
+        ]}
+      >
+        <Ionicons
+          name={isFocused ? activeIcon : inactiveIcon}
+          size={16}
+          color={isFocused ? colors.accentInverted : colors.textSecondary}
+        />
+        <Text
+          numberOfLines={1}
+          style={[
+            styles.tabButtonText,
+            {
+              color: isFocused ? colors.accentInverted : colors.textSecondary,
+              fontWeight: isFocused ? "700" : "500",
+            },
+          ]}
+        >
+          {label}
+        </Text>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+function CustomTabList(props: TabListProps) {
+  const scheme = useColorScheme();
+  const colors = Colors[scheme === "unspecified" ? "dark" : scheme];
+  const insets = useSafeAreaInsets();
+
+  const bottomInset = Math.max(insets.bottom, Platform.OS === "ios" ? 14 : 18);
+
+  return (
+    <View {...props} style={[styles.tabListContainer, { bottom: bottomInset }]}>
+      <View
+        style={[
+          styles.innerContainer,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        {/* Tab Buttons */}
+        <View style={styles.buttonsWrap}>{props.children}</View>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  tabListContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: Spacing.three,
+    zIndex: 100,
+  },
+  innerContainer: {
+    paddingVertical: 6,
+    paddingHorizontal: Spacing.three,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    maxWidth: MaxContentWidth - 32,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.16,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  brandWrapper: {
+    paddingLeft: Spacing.two,
+    paddingRight: Spacing.two,
+  },
+  brandText: {
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 2,
+  },
+  buttonsWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  tabBtnPressable: {
+    borderRadius: BorderRadius.full,
+  },
+  pressed: {
+    opacity: 0.8,
+  },
+  tabButtonView: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 7,
+    paddingHorizontal: Spacing.three,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+  },
+  tabButtonText: {
+    fontSize: 12,
+    letterSpacing: -0.1,
+  },
+});
