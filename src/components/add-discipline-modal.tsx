@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Alert,
   Modal,
   Pressable,
   ScrollView,
@@ -12,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/use-theme';
+import { useCustomAlert } from '@/features/alerts';
 import { BorderRadius, Spacing } from '@/constants/theme';
 import { FAMOUS_PERSONALITIES_DATA, PersonalityQuoteQuest } from '@/services/personality-wisdom';
 
@@ -23,21 +23,26 @@ interface AddDisciplineModalProps {
 
 const AVAILABLE_ICONS: Array<{ icon: keyof typeof Ionicons.glyphMap; label: string }> = [
   { icon: 'flash-outline', label: 'Deep Work' },
-  { icon: 'barbell-outline', label: 'Workout' },
+  { icon: 'fitness-outline', label: 'Fitness' },
   { icon: 'book-outline', label: 'Reading' },
   { icon: 'water-outline', label: 'Hydration' },
-  { icon: 'leaf-outline', label: 'Mindfulness' },
-  { icon: 'moon-outline', label: 'Sleep' },
+  { icon: 'bed-outline', label: 'Sleep' },
   { icon: 'code-slash-outline', label: 'Coding' },
-  { icon: 'flame-outline', label: 'Intensity' },
-  { icon: 'bicycle-outline', label: 'Cardio' },
-  { icon: 'heart-outline', label: 'Health' },
-  { icon: 'nutrition-outline', label: 'Diet' },
-  { icon: 'sunny-outline', label: 'Morning' },
+  { icon: 'medkit-outline', label: 'Health' },
+  { icon: 'barbell-outline', label: 'Strength' },
+  { icon: 'walk-outline', label: 'Walking' },
+  { icon: 'leaf-outline', label: 'Nutrition' },
+  { icon: 'journal-outline', label: 'Journaling' },
+  { icon: 'shield-outline', label: 'Discipline' },
 ];
 
-export function AddDisciplineModal({ isVisible, onClose, onAdd }: AddDisciplineModalProps) {
+export function AddDisciplineModal({
+  isVisible,
+  onClose,
+  onAdd,
+}: AddDisciplineModalProps) {
   const theme = useTheme();
+  const { showAlert } = useCustomAlert();
   const [activeTab, setActiveTab] = useState<'custom' | 'personality'>('custom');
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
@@ -45,7 +50,11 @@ export function AddDisciplineModal({ isVisible, onClose, onAdd }: AddDisciplineM
 
   const handleSubmit = () => {
     if (!title.trim()) {
-      Alert.alert('Missing Title', 'Please give your daily discipline standard a title.');
+      showAlert({
+        title: 'Missing Title',
+        message: 'Please give your daily discipline standard a title.',
+        type: 'warning',
+      });
       return;
     }
     onAdd(title.trim(), subtitle.trim(), selectedIcon);
@@ -61,10 +70,11 @@ export function AddDisciplineModal({ isVisible, onClose, onAdd }: AddDisciplineM
     );
     resetForm();
     onClose();
-    Alert.alert(
-      'Quest Adopted!',
-      `Added "${item.questTitle}" inspired by ${item.name} to your Daily Discipline.`
-    );
+    showAlert({
+      title: 'Quest Adopted!',
+      message: `Added "${item.questTitle}" inspired by ${item.name} to your Daily Discipline standards.`,
+      type: 'success',
+    });
   };
 
   const resetForm = () => {

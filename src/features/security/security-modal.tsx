@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
   Modal,
   Pressable,
   ScrollView,
@@ -12,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/use-theme';
+import { useCustomAlert } from '@/features/alerts';
 import { securityService, SecuritySettings } from '@/services/security-service';
 import { BorderRadius, Spacing } from '@/constants/theme';
 import { SetPinModal } from './set-pin-modal';
@@ -28,19 +28,20 @@ export function SecurityModal({
   onRequestChangePin,
 }: SecurityModalProps) {
   const theme = useTheme();
+  const { showAlert } = useCustomAlert();
   const [settings, setSettings] = useState<SecuritySettings | null>(null);
   const [isSetPinModalVisible, setIsSetPinModalVisible] = useState<boolean>(false);
+
+  const loadSettings = async () => {
+    const s = await securityService.getSettings();
+    setSettings(s);
+  };
 
   useEffect(() => {
     if (isVisible) {
       loadSettings();
     }
   }, [isVisible]);
-
-  const loadSettings = async () => {
-    const current = await securityService.getSettings();
-    setSettings(current);
-  };
 
   const handleToggleLock = async (val: boolean) => {
     if (val && !settings?.hasPin) {
@@ -55,7 +56,11 @@ export function SecurityModal({
 
   const handleToggleBiometrics = async (val: boolean) => {
     if (val && !settings?.biometricHardwareAvailable) {
-      Alert.alert('Not Supported', 'No biometric sensor detected on this device.');
+      showAlert({
+        title: 'Not Supported',
+        message: 'No biometric fingerprint sensor detected on this device.',
+        type: 'warning',
+      });
       return;
     }
     await securityService.setBiometricsEnabled(val);
@@ -77,10 +82,11 @@ export function SecurityModal({
   const handlePinSetSuccess = async () => {
     setIsSetPinModalVisible(false);
     await loadSettings();
-    Alert.alert(
-      'Security Updated',
-      'Master PIN has been saved successfully. App Lock is now active.'
-    );
+    showAlert({
+      title: 'Security Updated',
+      message: 'Master PIN has been saved successfully. App Lock is now active.',
+      type: 'success',
+    });
   };
 
   if (!settings) return null;

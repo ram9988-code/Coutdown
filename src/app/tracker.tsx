@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedView } from '@/components/themed-view';
 import { AddDisciplineModal } from '@/components/add-discipline-modal';
+import { useCustomAlert } from '@/features/alerts';
 import {
   BorderRadius,
   BottomTabInset,
@@ -36,6 +36,7 @@ import {
 
 export default function TrackerScreen() {
   const theme = useTheme();
+  const { showDeleteAlert } = useCustomAlert();
   const { ageProfile, cadence, nowTick } = useCountdowns();
 
   // Daily Discipline State
@@ -66,17 +67,21 @@ export default function TrackerScreen() {
 
   useEffect(() => {
     reloadDisciplines();
-  }, [todayKey]);
+  }, [nowTick]);
 
-  // Toggle discipline task
+  // Toggle habit completion for today
   const handleToggleHabit = async (id: string) => {
-    const { completedTaskIds: updatedList } = await disciplineService.toggleTaskCompletion(
-      todayKey,
-      id
-    );
-    setCompletedTaskIds(updatedList);
-    const updatedStreak = await disciplineService.calculateStreak(currentDate);
-    setStreakData(updatedStreak);
+    try {
+      const { completedTaskIds: updatedList } = await disciplineService.toggleTaskCompletion(
+        todayKey,
+        id
+      );
+      setCompletedTaskIds(updatedList);
+      const updatedStreak = await disciplineService.calculateStreak(currentDate);
+      setStreakData(updatedStreak);
+    } catch (err) {
+      console.warn('Failed to toggle discipline task:', err);
+    }
   };
 
   // Add custom discipline task
@@ -89,23 +94,19 @@ export default function TrackerScreen() {
     await reloadDisciplines();
   };
 
-  // Delete discipline task
+  // Delete discipline task with custom confirmation alert
   const handleDeleteDiscipline = (task: DisciplineTask) => {
-    Alert.alert(
-      'Remove Discipline',
-      `Are you sure you want to remove "${task.title}" from your daily standards?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: async () => {
-            await disciplineService.deleteTask(task.id);
-            await reloadDisciplines();
-          },
-        },
-      ]
-    );
+    showDeleteAlert({
+      title: 'Remove Discipline',
+      itemName: task.title,
+      message: 'Are you sure you want to remove this discipline standard from your daily tracking?',
+      confirmText: 'Remove Standard',
+      cancelText: 'Keep Standard',
+      onDelete: async () => {
+        await disciplineService.deleteTask(task.id);
+        await reloadDisciplines();
+      },
+    });
   };
 
   return (

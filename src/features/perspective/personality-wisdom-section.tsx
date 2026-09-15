@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import {
-  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,6 +11,7 @@ import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { BorderRadius, Spacing, Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useCustomAlert } from '@/features/alerts';
 import {
   FAMOUS_PERSONALITIES_DATA,
   PersonalityCategory,
@@ -34,6 +34,7 @@ interface PersonalityWisdomSectionProps {
 
 export function PersonalityWisdomSection({ onQuestAdopted }: PersonalityWisdomSectionProps) {
   const theme = useTheme();
+  const { showAlert } = useCustomAlert();
 
   const [selectedCategory, setSelectedCategory] = useState<'All' | PersonalityCategory>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -54,6 +55,8 @@ export function PersonalityWisdomSection({ onQuestAdopted }: PersonalityWisdomSe
     });
   }, [selectedCategory, searchQuery]);
 
+  const filteredPersonalities = filteredList;
+
   // Safe current item
   const currentItem: PersonalityQuoteQuest | undefined =
     filteredList[currentIndex % (filteredList.length || 1)] || FAMOUS_PERSONALITIES_DATA[0];
@@ -70,6 +73,15 @@ export function PersonalityWisdomSection({ onQuestAdopted }: PersonalityWisdomSe
     }
   };
 
+  const handleShareQuote = async (item: PersonalityQuoteQuest) => {
+    try {
+      // In native React Native we can copy or log
+      console.log(`"${item.quote}" — ${item.name}`);
+    } catch {
+      // Ignored
+    }
+  };
+
   const handleAdoptQuest = async (item: PersonalityQuoteQuest) => {
     try {
       await disciplineService.addTask(
@@ -78,11 +90,12 @@ export function PersonalityWisdomSection({ onQuestAdopted }: PersonalityWisdomSe
         item.questIcon
       );
       setAdoptedQuestId(item.id);
-      Alert.alert(
-        'Quest Adopted!',
-        `"${item.questTitle}" inspired by ${item.name} has been added to your Daily Discipline standards. Check the Tracker tab to execute it!`,
-        [{ text: 'Great!', style: 'default' }]
-      );
+      showAlert({
+        title: 'Quest Adopted!',
+        message: `"${item.questTitle}" inspired by ${item.name} has been added to your Daily Discipline standards. Check the Tracker tab to execute it!`,
+        type: 'success',
+        confirmText: 'Great!',
+      });
       if (onQuestAdopted) onQuestAdopted();
       setTimeout(() => setAdoptedQuestId(null), 3000);
     } catch (err) {

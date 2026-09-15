@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Countdown",
-    "slug": "Countdown",
+    "name": "Chronos",
+    "slug": "Chronos",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "countdown",
+    "scheme": "chronos",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -17,7 +17,19 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ],
+      "package": "com.ram300.Chronos"
+    },
+    "androidStatusBar": {
+      "translucent": true,
+      "backgroundColor": "#00000000"
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#00000000"
     },
     "web": {
       "output": "static",
@@ -28,7 +40,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#fff",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
@@ -36,13 +48,19 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow Countdown to use biometrics to secure your app."
+          "faceIDPermission": "Allow Chronos to use biometrics to secure your app."
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1de11cb6-eea8-43d1-8bf8-ce1ea66dced3"
+      }
     }
   }
 }

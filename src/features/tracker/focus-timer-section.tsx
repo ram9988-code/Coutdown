@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { BorderRadius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useCustomAlert } from '@/features/alerts';
 
 export const FOCUS_PRESETS = [
   { label: '25m Sprint', seconds: 25 * 60 },
@@ -13,6 +14,7 @@ export const FOCUS_PRESETS = [
 
 export function FocusTimerSection() {
   const theme = useTheme();
+  const { showAlert } = useCustomAlert();
 
   const [selectedPreset, setSelectedPreset] = useState<number>(0);
   const [focusRemainingSeconds, setFocusRemainingSeconds] = useState<number>(
@@ -32,10 +34,12 @@ export function FocusTimerSection() {
             const durationMins = Math.round(FOCUS_PRESETS[selectedPreset].seconds / 60);
             setCompletedSessionsToday((c) => c + 1);
             setTotalFocusedMinutesToday((m) => m + durationMins);
-            Alert.alert(
-              'Session Complete!',
-              `Great job! You completed a ${durationMins}-minute focus session.`
-            );
+            showAlert({
+              title: 'Session Complete!',
+              message: `Great job! You executed a ${durationMins}-minute relentless focus block. Keep up the high discipline.`,
+              type: 'success',
+              confirmText: 'Continue',
+            });
             return FOCUS_PRESETS[selectedPreset].seconds;
           }
           return prev - 1;
@@ -45,7 +49,7 @@ export function FocusTimerSection() {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isFocusActive, selectedPreset]);
+  }, [isFocusActive, selectedPreset, showAlert]);
 
   const handleSelectPreset = (index: number) => {
     if (isFocusActive) return;
